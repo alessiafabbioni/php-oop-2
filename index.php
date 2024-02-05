@@ -50,5 +50,33 @@ class Negozio {
     }
 }
 
+// Negozio
+$negozio = new Negozio();
+
+$categorie = [
+    new Categoria('Cani'),
+    new Categoria('Gatti'),
+];
+
+
+$prodottiDaAggiungere = [
+    ['id' => 1, 'titolo' => 'Crocchette al salmone', 'prezzo' => 10.99, 'categoria' => $categorie[0], 'tipoArticolo' => 'Cibo'],
+    ['id' => 2, 'titolo' => 'Crocchette al manzo', 'prezzo' => 15.99, 'categoria' => $categorie[0], 'tipoArticolo' => 'Cibo'],
+    ['id' => 3, 'titolo' => 'Crocchette al pollo', 'prezzo' => 19.99, 'categoria' => $categorie[0], 'tipoArticolo' => 'Cibo'],
+    ['id' => 4, 'titolo' => 'Topino', 'prezzo' => 5.99, 'categoria' => $categorie[1], 'tipoArticolo' => 'Gioco'],
+    ['id' => 5, 'titolo' => 'Pallina', 'prezzo' => 5.99, 'categoria' => $categorie[1], 'tipoArticolo' => 'Gioco'],
+];
+
+
+foreach ($prodottiDaAggiungere as $prodottoData) {
+    $prodotto = new Prodotto($prodottoData['id'], $prodottoData['titolo'], $prodottoData['prezzo'], $prodottoData['categoria'], $prodottoData['tipoArticolo']);
+    $negozio->aggiungiProdotto($prodotto);
+}
+
+// Stampa html
+foreach ($negozio->getProdotti() as $prodotto) {
+    $prodotto->stampaCard();
+}
+
 
 ?>
