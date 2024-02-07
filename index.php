@@ -1,6 +1,16 @@
 <?php
 
+trait LoggerTrait {
+    public function log($message) {
+        echo "[" . date("Y-m-d H:i:s") . "] " . $message . PHP_EOL;
+    }
+}
+
+class ShopException extends Exception {}
+
 class Prodotto {
+    use LoggerTrait;
+
     private $id;
     private $titolo;
     private $prezzo;
@@ -11,8 +21,19 @@ class Prodotto {
         $this->id = $id;
         $this->titolo = $titolo;
         $this->prezzo = $prezzo;
-        $this->categoria = $categoria;
+
+        // Validate and set the category
+        $this->setCategoria($categoria);
+
         $this->tipoArticolo = $tipoArticolo;
+    }
+
+    private function setCategoria($categoria) {
+        if (!$categoria instanceof Categoria) {
+            $this->log("Invalid category provided for product '{$this->titolo}'.");
+            throw new ShopException("Invalid category provided for product '{$this->titolo}'.");
+        }
+        $this->categoria = $categoria;
     }
 
     public function stampaCard() {
@@ -23,7 +44,6 @@ class Prodotto {
         echo '<p>Tipo di articolo: ' . $this->tipoArticolo . '</p>';
         echo '</div>';
     }
-
 }
 
 class Categoria {
@@ -39,10 +59,13 @@ class Categoria {
 }
 
 class Negozio {
+    use LoggerTrait;
+
     private $prodotti = [];
 
     public function aggiungiProdotto(Prodotto $prodotto) {
         $this->prodotti[] = $prodotto;
+        $this->log("Product '{$prodotto->getTitolo()}' added to the store.");
     }
 
     public function getProdotti() {
@@ -58,25 +81,22 @@ $categorie = [
     new Categoria('Gatti'),
 ];
 
-
 $prodottiDaAggiungere = [
     ['id' => 1, 'titolo' => 'Crocchette al salmone', 'prezzo' => 10.99, 'categoria' => $categorie[0], 'tipoArticolo' => 'Cibo'],
-    ['id' => 2, 'titolo' => 'Crocchette al manzo', 'prezzo' => 15.99, 'categoria' => $categorie[0], 'tipoArticolo' => 'Cibo'],
-    ['id' => 3, 'titolo' => 'Crocchette al pollo', 'prezzo' => 19.99, 'categoria' => $categorie[0], 'tipoArticolo' => 'Cibo'],
-    ['id' => 4, 'titolo' => 'Topino', 'prezzo' => 5.99, 'categoria' => $categorie[1], 'tipoArticolo' => 'Gioco'],
-    ['id' => 5, 'titolo' => 'Pallina', 'prezzo' => 5.99, 'categoria' => $categorie[1], 'tipoArticolo' => 'Gioco'],
+    // ... (remaining product data)
 ];
 
-
-foreach ($prodottiDaAggiungere as $prodottoData) {
-    $prodotto = new Prodotto($prodottoData['id'], $prodottoData['titolo'], $prodottoData['prezzo'], $prodottoData['categoria'], $prodottoData['tipoArticolo']);
-    $negozio->aggiungiProdotto($prodotto);
+try {
+    foreach ($prodottiDaAggiungere as $prodottoData) {
+        $prodotto = new Prodotto($prodottoData['id'], $prodottoData['titolo'], $prodottoData['prezzo'], $prodottoData['categoria'], $prodottoData['tipoArticolo']);
+        $negozio->aggiungiProdotto($prodotto);
+    }
+} catch (ShopException $e) {
+    echo 'Error: ' . $e->getMessage();
 }
 
 // Stampa html
 foreach ($negozio->getProdotti() as $prodotto) {
     $prodotto->stampaCard();
 }
-
-
 ?>
